@@ -216,6 +216,11 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .input-group {
+      margin-bottom: 12px;
     }
 
     .input-group label {
@@ -357,12 +362,21 @@
         <h2 class="card-title">🍓 Konversi Excel ke CSV</h2>
         <p class="card-desc">Ubah banyak file Excel sekaligus menjadi CSV, hasil terunduh dalam satu file ZIP.</p>
 
-        <div class="input-group">
-          <label>Hapus Baris Pertama (Header):</label>
-          <select id="delHeaderConv">
-            <option value="tidak">TIDAK — Simpan baris pertama</option>
-            <option value="ya">YA — Hapus baris pertama</option>
-          </select>
+        <div class="grid-row">
+          <div class="input-group">
+            <label>Jenis File Excel:</label>
+            <select id="typeHeaderConv" onchange="toggleHeaderAction('Conv')">
+              <option value="ada">Ada Header (Baris Pertama Judul)</option>
+              <option value="tanpa">Tanpa Header (Langsung Isi Data)</option>
+            </select>
+          </div>
+          <div class="input-group" id="boxActionConv">
+            <label>Opsi Header:</label>
+            <select id="actionHeaderConv">
+              <option value="simpan">Simpan Header</option>
+              <option value="hapus">Hapus Header</option>
+            </select>
+          </div>
         </div>
 
         <div class="dropzone" id="dzConv" onclick="document.getElementById('fConv').click()">
@@ -390,12 +404,20 @@
             </select>
           </div>
           <div class="input-group">
-            <label>Hapus Baris Pertama (Header):</label>
-            <select id="delHeaderClean">
-              <option value="tidak">TIDAK — Biarkan Header Utuh</option>
-              <option value="ya">YA — Hapus Header</option>
+            <label>Jenis File Excel:</label>
+            <select id="typeHeaderClean" onchange="toggleHeaderAction('Clean')">
+              <option value="ada">Ada Header (Baris Pertama Judul)</option>
+              <option value="tanpa">Tanpa Header (Langsung Isi Data)</option>
             </select>
           </div>
+        </div>
+
+        <div class="input-group" id="boxActionClean">
+          <label>Opsi Header:</label>
+          <select id="actionHeaderClean">
+            <option value="simpan">Simpan Header Utuh</option>
+            <option value="hapus">Hapus Header</option>
+          </select>
         </div>
 
         <div class="dropzone" id="dzClean" onclick="document.getElementById('fClean').click()">
@@ -411,7 +433,7 @@
       <!-- TAB 3: PECAH -->
       <div id="tabSplit" class="tab-content">
         <h2 class="card-title">🍰 Pecah File Excel</h2>
-        <p class="card-desc">Pisah file besar menjadi beberapa bagian, header otomatis muncul di setiap bagian.</p>
+        <p class="card-desc">Pisah file besar menjadi beberapa bagian, header otomatis dipertahankan jika ada.</p>
 
         <div class="grid-row">
           <div class="input-group">
@@ -427,12 +449,21 @@
           </div>
         </div>
 
-        <div class="input-group" style="margin-top:12px;">
-          <label>Hapus Baris Pertama Sebelum Dipecah:</label>
-          <select id="delHeaderSplit">
-            <option value="tidak">TIDAK — Tetap jadi header tiap file</option>
-            <option value="ya">YA — Hapus dulu baru dipecah</option>
-          </select>
+        <div class="grid-row">
+          <div class="input-group">
+            <label>Jenis File Excel:</label>
+            <select id="typeHeaderSplit" onchange="toggleHeaderAction('Split')">
+              <option value="ada">Ada Header (Baris Pertama Judul)</option>
+              <option value="tanpa">Tanpa Header (Langsung Isi Data)</option>
+            </select>
+          </div>
+          <div class="input-group" id="boxActionSplit">
+            <label>Opsi Header:</label>
+            <select id="actionHeaderSplit">
+              <option value="simpan">Jadikan Header di Tiap File Bagian</option>
+              <option value="hapus">Hapus Header Sebelum Dipecah</option>
+            </select>
+          </div>
         </div>
 
         <div class="dropzone" id="dzSplit" onclick="document.getElementById('fSplit').click()">
@@ -448,7 +479,7 @@
       <!-- TAB 4: GABUNG -->
       <div id="tabMerge" class="tab-content">
         <h2 class="card-title">🌷 Gabungkan File Excel</h2>
-        <p class="card-desc">Gabungkan banyak file jadi satu. Pilih cara penanganan baris pertama.</p>
+        <p class="card-desc">Gabungkan banyak file jadi satu. Mengatur penanganan baris header dengan mudah.</p>
 
         <div class="grid-row">
           <div class="input-group">
@@ -459,12 +490,20 @@
             </select>
           </div>
           <div class="input-group">
-            <label>Baris Pertama:</label>
-            <select id="delHeaderMerge">
-              <option value="simpan">Simpan dari file pertama saja</option>
-              <option value="semua">Hapus dari SEMUA file</option>
+            <label>Jenis File Excel:</label>
+            <select id="typeHeaderMerge" onchange="toggleHeaderAction('Merge')">
+              <option value="ada">Ada Header (Baris Pertama Judul)</option>
+              <option value="tanpa">Tanpa Header (Langsung Isi Data)</option>
             </select>
           </div>
+        </div>
+
+        <div class="input-group" id="boxActionMerge">
+          <label>Opsi Header:</label>
+          <select id="actionHeaderMerge">
+            <option value="simpan">Simpan Header (Hanya Dari File Pertama)</option>
+            <option value="hapus">Hapus Header Dari Semua File</option>
+          </select>
         </div>
 
         <div class="divider"></div>
@@ -484,6 +523,17 @@
   </div>
 
   <script>
+    // === TOGGLE OPSI HEADER DYNAMIC ===
+    function toggleHeaderAction(pref) {
+      const type = document.getElementById(`typeHeader${pref}`).value;
+      const boxAction = document.getElementById(`boxAction${pref}`);
+      if (type === 'tanpa') {
+        boxAction.style.display = 'none';
+      } else {
+        boxAction.style.display = 'block';
+      }
+    }
+
     // === GANTI TAB ===
     function switchTab(id, e) {
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -502,30 +552,23 @@
     }
 
     // =========================================================
-    // ✅ LANGKAH 1: NORMALISASI NOMOR HP
+    // ✅ NORMALISASI & VALIDASI NOMOR HP
     // =========================================================
     function normalisasiNomorHP(val) {
       if (!val && val !== 0) return '';
-      // 1. Hapus semua spasi, strip, dan tanda baca (ambil digit saja)
       let digit = String(val).replace(/[^0-9]/g, '');
       if (!digit) return '';
 
-      // 2. Jika diawali '08' atau '8', ubah otomatis menjadi '628'
       if (digit.startsWith('08')) {
         digit = '628' + digit.slice(2);
       } else if (digit.startsWith('8')) {
         digit = '628' + digit.slice(1);
       }
-      
       return digit;
     }
 
-    // =========================================================
-    // ✅ LANGKAH 2: VALIDASI NOMOR HP
-    // =========================================================
     function nomorHPValid(digit) {
       if (!digit) return false;
-      // Aturan: Harus diawali '628', hanya berisi angka, dan panjang total 10 s/d 14 digit
       return /^628\d{7,11}$/.test(digit);
     }
 
@@ -566,7 +609,9 @@
     async function prosesConv() {
       const stat = document.getElementById('statConv');
       const btn = document.getElementById('btnConv');
-      const delH = document.getElementById('delHeaderConv').value;
+      const typeHeader = document.getElementById('typeHeaderConv').value;
+      const actionHeader = document.getElementById('actionHeaderConv').value;
+      
       btn.disabled = true; btn.textContent = '⏳ Memproses...'; stat.innerHTML = '';
       try {
         const zip = new JSZip();
@@ -574,7 +619,11 @@
           const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
           let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
           let catatan = '';
-          if (delH === 'ya' && d.length > 0) { d.shift(); catatan = ' (baris pertama dihapus)'; }
+
+          if (typeHeader === 'ada' && actionHeader === 'hapus' && d.length > 0) {
+            d.shift(); catatan = ' (header dihapus)';
+          }
+
           zip.file(f.name.replace(/\.(xls|xlsx)$/i, '.csv'), XLSX.utils.sheet_to_csv(XLSX.utils.aoa_to_sheet(d)));
           stat.innerHTML += `<div class="status-item success">✅ ${f.name}${catatan}</div>`;
         }
@@ -584,14 +633,13 @@
       finally { btn.disabled = false; btn.textContent = '⭐ KONVERSI & UNDUH ZIP'; }
     }
 
-    // =========================================================
-    // ✅ 2. PROSES BERSIHKAN DATA (SESUAI ALUR TERBARU)
-    // =========================================================
+    // === 2. BERSIHKAN ===
     async function prosesClean() {
       const stat = document.getElementById('statClean');
       const btn = document.getElementById('btnClean');
       const fmt = document.getElementById('fmtClean').value;
-      const delH = document.getElementById('delHeaderClean').value;
+      const typeHeader = document.getElementById('typeHeaderClean').value;
+      const actionHeader = document.getElementById('actionHeaderClean').value;
 
       btn.disabled = true; btn.textContent = '⏳ Memproses...'; stat.innerHTML = '';
       try {
@@ -602,45 +650,37 @@
           if (d.length === 0) { stat.innerHTML += `<div class="status-item error">⚠️ ${f.name}: File kosong</div>`; continue; }
 
           let header = [];
-          if (delH === 'tidak' && d.length > 0) {
-            header = d.shift(); // Ambil header
-          } else if (delH === 'ya' && d.length > 0) {
-            d.shift(); // Hapus header
+          if (typeHeader === 'ada') {
+            if (actionHeader === 'simpan') {
+              header = d.shift(); // Ambil header untuk disimpan nanti
+            } else {
+              d.shift(); // Buang header
+            }
           }
 
           let barisAwal = d.length;
           let barisValid = [];
 
           for (let baris of d) {
-            // Kriteria 1: Baris benar-benar kosong
             const adaIsiSatuPun = baris.some(s => s !== null && s !== undefined && String(s).trim() !== '');
             if (!adaIsiSatuPun) continue;
 
-            // Kriteria 2: Kolom A ATAU Kolom B kosong (salah satu tidak ada isinya -> hapus baris)
             const valA = baris[0] ? String(baris[0]).trim() : '';
             const valB = baris[1] ? String(baris[1]).trim() : '';
             if (!valA || !valB) continue;
 
-            // Deteksi otomatis kolom nomor HP (antara A atau B)
-            let colPhoneIdx = 1; // Default di Kolom B
+            let colPhoneIdx = 1;
             if (!normalisasiNomorHP(valB) && normalisasiNomorHP(valA)) {
-              colPhoneIdx = 0;   // Jika B bukan HP tapi A adalah HP
+              colPhoneIdx = 0;
             }
 
-            // Langkah 1: Normalisasi Nomor HP
             let normalizedHp = normalisasiNomorHP(baris[colPhoneIdx]);
-
-            // Langkah 2: Kriteria 3 (Validasi Nomor HP: 628, 10-14 digit)
             if (!nomorHPValid(normalizedHp)) continue;
 
-            // Masukkan hasil yang sudah bersih ke dalam baris
             baris[colPhoneIdx] = normalizedHp;
-
-            // Langkah 3: Simpan baris yang lolos (Otomatis menyusun rapat kembali)
             barisValid.push(baris);
           }
 
-          // Gabungkan kembali dengan header jika disimpan
           const hasilAkhir = (header.length > 0) ? [header, ...barisValid] : barisValid;
           const sh = XLSX.utils.aoa_to_sheet(hasilAkhir);
 
@@ -667,19 +707,36 @@
       const btn = document.getElementById('btnSplit');
       const brs = +document.getElementById('rowSplit').value || 250;
       const fmt = document.getElementById('fmtSplit').value;
-      const delH = document.getElementById('delHeaderSplit').value;
+      const typeHeader = document.getElementById('typeHeaderSplit').value;
+      const actionHeader = document.getElementById('actionHeaderSplit').value;
+
       btn.disabled = true; btn.textContent = '⏳ Memproses...'; stat.innerHTML = '';
       try {
         const f = fileData.Split[0];
         const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
         let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
-        if (delH === 'ya' && d.length > 0) { d.shift(); stat.innerHTML += `<div class="status-item info">ℹ️ Baris pertama dihapus sebelum dipecah</div>`; }
-        if (d.length < 2) throw new Error('Data tidak cukup');
-        const h = d[0], isi = d.slice(1);
+        
+        let h = null;
+        let isi = d;
+
+        if (typeHeader === 'ada') {
+          if (actionHeader === 'simpan') {
+            h = d[0];
+            isi = d.slice(1);
+          } else {
+            isi = d.slice(1); // Hapus header
+            stat.innerHTML += `<div class="status-item info">ℹ️ Header dihapus sebelum dipecah</div>`;
+          }
+        }
+
+        if (isi.length < 1) throw new Error('Data tidak cukup');
+
         const zip = new JSZip(); let no = 1;
         for (let i = 0; i < isi.length; i += brs) {
-          const bg = [h, ...isi.slice(i, i + brs)];
+          const chunk = isi.slice(i, i + brs);
+          const bg = h ? [h, ...chunk] : chunk;
           const sh = XLSX.utils.aoa_to_sheet(bg);
+          
           if (fmt === 'csv') zip.file(`${f.name.replace(/\.(xls|xlsx)$/i,'')}_BAGIAN${no}.csv`, XLSX.utils.sheet_to_csv(sh));
           else { const nb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(nb, sh, 'Bagian'); zip.file(`${f.name.replace(/\.(xls|xlsx)$/i,'')}_BAGIAN${no}.xlsx`, XLSX.write(nb, { type: 'array', bookType: 'xlsx' })); }
           no++;
@@ -695,29 +752,42 @@
       const stat = document.getElementById('statMerge');
       const btn = document.getElementById('btnMerge');
       const fmt = document.getElementById('fmtMerge').value;
-      const mode = document.getElementById('delHeaderMerge').value;
+      const typeHeader = document.getElementById('typeHeaderMerge').value;
+      const actionHeader = document.getElementById('actionHeaderMerge').value;
+
       btn.disabled = true; btn.textContent = '⏳ Menggabungkan...'; stat.innerHTML = '';
       try {
         let gabung = [], judul = null;
         let urutan = 0;
+
         for (let f of fileData.Merge) {
           urutan++;
           const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
           let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
           if (!d.length) continue;
-          if (mode === 'semua') d.shift();
-          else {
-            if (urutan === 1) { judul = d[0]; d.shift(); gabung.push(judul); }
-            else d.shift();
+
+          if (typeHeader === 'ada') {
+            if (actionHeader === 'hapus') {
+              d.shift(); // Buang header dari semua file
+            } else {
+              // Simpan dari file pertama saja
+              if (urutan === 1) {
+                judul = d[0]; d.shift(); gabung.push(judul);
+              } else {
+                d.shift();
+              }
+            }
           }
+
           if (d.length) gabung.push(...d);
           stat.innerHTML += `<div class="status-item success">✅ ${f.name}</div>`;
         }
-        if (gabung.length < 2) throw new Error('Tidak ada data yang bisa digabung');
+
+        if (gabung.length < 1) throw new Error('Tidak ada data yang bisa digabung');
         const sh = XLSX.utils.aoa_to_sheet(gabung);
         if (fmt === 'csv') unduh(new Blob([XLSX.utils.sheet_to_csv(sh)], { type: 'text/csv;charset=utf-8' }), 'hasil-gabung.csv');
         else { const nb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(nb, sh, 'Gabungan'); unduh(new Blob([XLSX.write(nb, { type: 'array', bookType: 'xlsx' })]), 'hasil-gabung.xlsx'); }
-        stat.innerHTML += `<div class="status-item info">✅ Selesai! Total ${gabung.length - 1} baris digabung</div>`;
+        stat.innerHTML += `<div class="status-item info">✅ Selesai! Total ${gabung.length} baris digabung</div>`;
       } catch (e) { stat.innerHTML = `<div class="status-item error">❌ ${e.message}</div>`; }
       finally { btn.disabled = false; btn.textContent = '🔗 GABUNGKAN & UNDUH'; }
     }
