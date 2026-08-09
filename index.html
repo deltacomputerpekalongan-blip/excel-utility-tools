@@ -3,779 +3,724 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Excel Utility Tools - Delta Computer</title>
-  <!-- Library SheetJS & JSZip -->
+  <title>Excel Utility Tools — Molang Theme 🍓</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Palette Liquid Glass Modern */
-      --glass-bg: rgba(255, 255, 255, 0.15);
-      --glass-bg-hover: rgba(255, 255, 255, 0.28);
-      --glass-card: rgba(255, 255, 255, 0.2);
-      --glass-border: rgba(255, 255, 255, 0.35);
-      --glass-border-light: rgba(255, 255, 255, 0.5);
-      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
-      --glass-blur: blur(12px);
-      
-      --metro-accent: rgba(0, 120, 215, 0.85);
-      --metro-accent-glow: rgba(0, 120, 215, 0.4);
-      --metro-green: rgba(16, 124, 65, 0.85);
-      --metro-red: rgba(209, 52, 56, 0.85);
-      --text-main: #000000;
-      --text-sub: #2d2d2d;
+      --bg-primary: #FFF9FB;
+      --bg-card: #FFFFFF;
+      --bg-input: #FFF3F6;
+      --accent-pink: #FFB7C5;
+      --accent-pink-dark: #FF85A2;
+      --accent-yellow: #FFE599;
+      --accent-mint: #B2F2BB;
+      --accent-purple: #E8D5FF;
+      --text-primary: #5A4A4E;
+      --text-secondary: #8C7A7E;
+      --border-color: #FFE1E8;
+      --radius-sm: 16px;
+      --radius-md: 24px;
+      --radius-lg: 32px;
+      --shadow-cute: 0 10px 25px rgba(255, 183, 197, 0.25);
+      --shadow-button: 0 6px 0px #FF94AA;
     }
 
-    * { 
-      box-sizing: border-box; 
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+      font-family: 'Fredoka', 'Nunito', sans-serif;
     }
 
     body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-      /* Background Liquid Gradient Reflektif */
-      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #764ba2 100%);
-      background-attachment: fixed;
-      color: var(--text-main);
-      padding: 30px 16px;
+      background: linear-gradient(135deg, #FFF0F5 0%, #FFF9FB 50%, #F0F8FF 100%);
+      color: var(--text-primary);
       min-height: 100vh;
-      line-height: 1.4;
+      padding: 28px 16px;
+      line-height: 1.5;
     }
 
-    .metro-container {
-      max-width: 800px;
+    .container {
+      max-width: 860px;
       margin: 0 auto;
     }
 
-    /* Header Full Liquid Glass */
-    .metro-header {
-      margin-bottom: 20px;
+    .header {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px 28px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
-      gap: 14px;
-      background: var(--glass-card);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 16px 20px;
-      box-shadow: var(--glass-shadow);
+      gap: 16px;
+      box-shadow: var(--shadow-cute);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::after {
+      content: '🍓 🐥 🐰';
+      position: absolute;
+      right: 20px;
+      font-size: 20px;
+      opacity: 0.6;
     }
 
     .header-icon {
-      width: 42px;
-      height: 42px;
-      background: var(--metro-accent);
-      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #FFE599;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px var(--metro-accent-glow);
+      font-size: 28px;
+      box-shadow: 0 4px 12px rgba(255, 229, 153, 0.5);
+      border: 2px solid #FFF;
     }
 
     .header-text h1 {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
-      color: var(--text-main);
-      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      letter-spacing: 0.5px;
     }
 
     .header-text p {
-      font-size: 12.5px;
-      color: var(--text-sub);
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
     }
 
-    /* Metro Glass Tiles Tabs (Ukuran Sedang & Ringkas) */
-    .metro-tabs {
+    .tabs {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .metro-tile-btn {
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      color: var(--text-main);
-      padding: 10px 14px;
-      text-align: left;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      height: 60px; /* Ukuran sedang & presisi */
-      box-shadow: var(--glass-shadow);
-    }
-
-    .metro-tile-btn:hover {
-      background: var(--glass-bg-hover);
-      border-color: var(--glass-border-light);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .metro-tile-btn.active {
-      background: rgba(0, 120, 215, 0.65);
-      color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 6px 20px var(--metro-accent-glow);
-    }
-
-    .metro-tile-btn .tile-badge {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      opacity: 0.8;
-      letter-spacing: 0.5px;
-      margin-bottom: 2px;
-    }
-
-    .metro-tile-btn.active .tile-badge {
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .metro-tile-btn .tile-title {
-      font-size: 13.5px;
-      font-weight: 600;
-      line-height: 1.2;
-    }
-
-    /* Card Container Full Liquid Glass */
-    .metro-card {
-      background: var(--glass-card);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: var(--glass-shadow);
-    }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .step-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-
-    .step-number {
-      background: var(--metro-accent);
-      color: white;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-    }
-
-    .step-title {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .tab-description {
-      font-size: 13px;
-      color: var(--text-sub);
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
       margin-bottom: 20px;
     }
 
-    /* Area Dropzone Liquid Glass */
-    .drop-zone {
-      border: 1.5px dashed rgba(255, 255, 255, 0.6);
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-radius: 14px;
-      padding: 30px 16px;
-      text-align: center;
+    .tab-btn {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      color: var(--text-secondary);
       cursor: pointer;
-      transition: all 0.25s ease;
-      margin: 14px 0;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      background: #FFF0F5;
+      transform: translateY(-3px);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-pink);
+      border-color: var(--accent-pink-dark);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-cute);
+      transform: translateY(-2px);
+    }
+
+    .tab-btn .tab-num {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+
+    .tab-btn.active .tab-num {
+      color: #FFF;
+    }
+
+    .tab-btn .tab-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-cute);
+      position: relative;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: bounceIn 0.4s ease; }
+
+    @keyframes bounceIn {
+      0% { opacity: 0; transform: scale(0.96); }
+      70% { transform: scale(1.01); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
       display: flex;
-      flex-direction: column;
       align-items: center;
       gap: 8px;
     }
 
-    .drop-zone:hover, .drop-zone.dragover {
-      background: rgba(255, 255, 255, 0.3);
-      border-color: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    .card-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      font-weight: 500;
     }
 
-    .drop-icon {
-      width: 36px;
-      height: 36px;
-      fill: #000000;
-      opacity: 0.8;
-      transition: transform 0.25s ease;
+    .dropzone {
+      border: 3px dashed var(--accent-pink);
+      border-radius: var(--radius-md);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      background: #FFFBFD;
+      margin: 16px 0;
     }
 
-    .drop-zone:hover .drop-icon {
-      transform: scale(1.1);
-      opacity: 1;
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent-pink-dark);
+      background: #FFF0F5;
+      transform: scale(1.01);
     }
 
-    .drop-zone-text {
-      font-size: 13px;
-      color: var(--text-main);
+    .dropzone-text {
+      font-size: 15px;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .dropzone-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
     }
 
     input[type="file"] { display: none; }
 
-    /* Form Controls Glass */
-    .section-divider {
-      height: 1px;
-      background: var(--glass-border);
-      margin: 20px 0;
-    }
-
-    .row-grid {
+    .grid-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 14px;
+      gap: 16px;
     }
 
     .input-group label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
       display: block;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      margin-bottom: 8px;
     }
 
-    .input-group select, .input-group input {
+    select, input {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--glass-border);
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      font-family: inherit;
-      font-size: 13px;
-      color: var(--text-main);
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 600;
       outline: none;
       transition: all 0.2s;
     }
 
-    .input-group select:focus, .input-group input:focus {
-      background: rgba(255, 255, 255, 0.5);
-      border-color: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    select:focus, input:focus {
+      border-color: var(--accent-pink-dark);
+      background: #FFF;
+      box-shadow: 0 0 0 4px rgba(255, 183, 197, 0.3);
     }
 
-    /* Tombol Liquid Glass */
-    .btn-download {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+    .divider {
+      height: 2px;
+      background: var(--border-color);
+      margin: 24px 0;
+      border-radius: 2px;
+    }
+
+    .btn-primary {
       width: 100%;
-      padding: 14px;
-      background: var(--metro-green);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      padding: 16px;
+      margin-top: 12px;
+      background: var(--accent-pink);
       color: white;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 12px;
-      font-family: inherit;
-      font-size: 13.5px;
-      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 700;
       cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      transition: all 0.25s;
-      box-shadow: 0 6px 18px rgba(16, 124, 65, 0.3);
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-button);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
 
-    .btn-download:hover { 
-      background: rgba(14, 107, 55, 0.95);
-      box-shadow: 0 8px 22px rgba(16, 124, 65, 0.45);
-      transform: translateY(-1px);
+    .btn-primary:hover {
+      background: #FF9EAF;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0px #FF85A2;
     }
 
-    /* Notifikasi Status Glass */
-    .status {
+    .btn-primary:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0px #FF85A2;
+    }
+
+    .btn-primary:disabled {
+      background: #E2D9DC;
+      color: #A39699;
+      box-shadow: 0 6px 0px #C7BCBF;
+      transform: none;
+      cursor: not-allowed;
+    }
+
+    .status-box {
       margin-top: 16px;
-      font-size: 12.5px;
-      max-height: 200px;
+      font-size: 13px;
+      max-height: 220px;
       overflow-y: auto;
     }
 
     .status-item {
-      padding: 10px 14px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
       margin-bottom: 8px;
-      background: rgba(255, 255, 255, 0.35);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      border-radius: 10px;
-      border-left: 4px solid #107c41;
-      color: #0b3d17;
-      font-weight: 500;
+      background: #FFF0F5;
+      border: 2px solid var(--border-color);
+      font-size: 13px;
+      font-weight: 600;
     }
 
-    .status-error { 
-      background: rgba(255, 230, 230, 0.45); 
-      border-left-color: #d13438;
-      color: #61050a; 
+    .status-item.success { border-color: #B2F2BB; background: #E6FCF5; color: #2B8A3E; }
+    .status-item.error { border-color: #FFC9C9; background: #FFF5F5; color: #C92A2A; }
+    .status-item.info { border-color: #A5D8FF; background: #E7F5FF; color: #1864AB; }
+
+    .file-list-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 13px;
     }
 
-    .status-info { 
-      background: rgba(230, 242, 255, 0.45); 
-      border-left-color: #0078d7;
-      color: #052c54; 
-    }
-
-    .download-area {
-      margin-top: 16px;
-    }
-
-    @media (max-width: 600px) {
-      .metro-tabs { grid-template-columns: 1fr; }
-      .row-grid { grid-template-columns: 1fr; }
-      .metro-tile-btn { height: 52px; }
+    @media (max-width: 768px) {
+      .tabs { grid-template-columns: repeat(2, 1fr); }
+      .grid-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-  <div class="metro-container">
-    <!-- Header App -->
-    <div class="metro-header">
-      <div class="header-icon">XLS</div>
+  <div class="container">
+    <div class="header">
+      <div class="header-icon">🐰</div>
       <div class="header-text">
         <h1>Excel Utility Tools</h1>
-        <p>Aplikasi Pengolah File Excel - Full Liquid Glass</p>
+        <p>Konversi • Bersihkan • Bagi • Gabungkan ✨</p>
       </div>
     </div>
 
-    <!-- Metro Glass Tiles Navigation (Ukuran Sedang) -->
-    <div class="metro-tabs">
-      <button class="metro-tile-btn active" onclick="switchTab('converterTab', event)">
-        <span class="tile-badge">01. Konversi</span>
-        <span class="tile-title">XLS ke CSV</span>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tabConv', event)">
+        <div class="tab-num">01. Konversi</div>
+        <div class="tab-name">XLS → CSV</div>
       </button>
-      <button class="metro-tile-btn" onclick="switchTab('splitterTab', event)">
-        <span class="tile-badge">02. Pemisah</span>
-        <span class="tile-title">Splitter Excel</span>
+      <button class="tab-btn" onclick="switchTab('tabClean', event)">
+        <div class="tab-num">02. Bersihkan</div>
+        <div class="tab-name">Data & No HP</div>
       </button>
-      <button class="metro-tile-btn" onclick="switchTab('cleanerTab', event)">
-        <span class="tile-badge">03. Sanitasi</span>
-        <span class="tile-title">Pembersih No HP</span>
+      <button class="tab-btn" onclick="switchTab('tabSplit', event)">
+        <div class="tab-num">03. Pecah</div>
+        <div class="tab-name">Split File</div>
+      </button>
+      <button class="tab-btn" onclick="switchTab('tabMerge', event)">
+        <div class="tab-num">04. Gabung</div>
+        <div class="tab-name">Merge File</div>
       </button>
     </div>
 
-    <!-- Main Content Glass Card -->
-    <div class="metro-card">
+    <div class="card">
 
-      <!-- TAB 1: CONVERT XLS TO CSV -->
-      <div id="converterTab" class="tab-content active">
-        <div class="step-header">
-          <span class="step-number">FITUR 01</span>
-          <span class="step-title">Batch Konversi XLS ke CSV</span>
-        </div>
-        <p class="tab-description">Ubah banyak file Excel (<strong>.xls / .xlsx</strong>) menjadi CSV secara instan dalam 1 file ZIP.</p>
-        
-        <div class="drop-zone" id="dropZoneConverter" onclick="document.getElementById('fileInputConverter').click()">
-          <svg class="drop-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-          <div class="drop-zone-text"><strong>Klik untuk memilih</strong> atau seret file .xls / .xlsx ke sini</div>
-          <input type="file" id="fileInputConverter" multiple accept=".xls,.xlsx" onchange="processConverter(this.files)">
-        </div>
+      <!-- TAB 1: KONVERSI -->
+      <div id="tabConv" class="tab-content active">
+        <h2 class="card-title">🍓 Konversi Excel ke CSV</h2>
+        <p class="card-desc">Ubah banyak file Excel sekaligus menjadi CSV, hasil terunduh dalam satu file ZIP.</p>
 
-        <div id="statusConverter" class="status"></div>
-        <div id="downloadAreaConverter" class="download-area" style="display: none;"></div>
-      </div>
-
-      <!-- TAB 2: EXCEL SPLITTER -->
-      <div id="splitterTab" class="tab-content">
-        <div class="step-header">
-          <span class="step-number">FITUR 02</span>
-          <span class="step-title">Excel Splitter</span>
-        </div>
-        <p class="tab-description">Pecah 1 file Excel besar menjadi beberapa bagian sesuai jumlah baris maksimal yang ditentukan.</p>
-        
         <div class="input-group">
-          <label for="chunkSizeInput">Maksimal Baris per File Output:</label>
-          <input type="number" id="chunkSizeInput" value="250" min="1" placeholder="Contoh: 250">
+          <label>Hapus Baris Pertama (Header):</label>
+          <select id="delHeaderConv">
+            <option value="tidak">TIDAK — Simpan baris pertama</option>
+            <option value="ya">YA — Hapus baris pertama</option>
+          </select>
         </div>
 
-        <div class="section-divider"></div>
-
-        <div class="drop-zone" id="dropZoneSplitter" onclick="document.getElementById('fileInputSplitter').click()">
-          <svg class="drop-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-          <div class="drop-zone-text"><strong>Klik untuk memilih</strong> atau seret 1 file Excel (.xlsx / .xls / .csv)</div>
-          <input type="file" id="fileInputSplitter" accept=".xlsx,.xls,.csv" onchange="processSplitter(this.files)">
+        <div class="dropzone" id="dzConv" onclick="document.getElementById('fConv').click()">
+          <div class="dropzone-text">🎀 Klik atau seret file ke sini</div>
+          <div class="dropzone-sub">Pilih banyak file .xls / .xlsx sekaligus</div>
+          <input type="file" id="fConv" multiple accept=".xls,.xlsx">
         </div>
 
-        <div id="statusSplitter" class="status"></div>
-        <div id="downloadAreaSplitter" class="download-area" style="display: none;"></div>
+        <div id="listConv" class="status-box"></div>
+        <div id="statConv" class="status-box"></div>
+        <button class="btn-primary" id="btnConv" disabled onclick="prosesConv()">⭐ KONVERSI & UNDUH ZIP</button>
       </div>
 
-      <!-- TAB 3: PEMBERSIH NO HP -->
-      <div id="cleanerTab" class="tab-content">
-        <div class="step-header">
-          <span class="step-number">FITUR 03</span>
-          <span class="step-title">Pembersih & Format No. HP</span>
-        </div>
-        <p class="tab-description">Hapus baris kosong, buang nomor HP invalid, dan selaraskan nomor awal ke format <strong>628...</strong></p>
+      <!-- TAB 2: BERSIHKAN -->
+      <div id="tabClean" class="tab-content">
+        <h2 class="card-title">🐥 Bersihkan Data & Nomor HP</h2>
+        <p class="card-desc">Normalisasi nomor HP ke kode 628, hapus baris yang tidak memenuhi standar validasi.</p>
 
-        <div class="row-grid">
+        <div class="grid-row">
           <div class="input-group">
-            <label for="cleanMode">Mode Proses:</label>
-            <select id="cleanMode" onchange="toggleCleanerMode()">
-              <option value="single">Tunggal (1 File Direct Download)</option>
-              <option value="batch">Batch (Banyak File via ZIP)</option>
+            <label>Format Hasil:</label>
+            <select id="fmtClean">
+              <option value="xlsx">Excel (.xlsx)</option>
+              <option value="csv">CSV</option>
             </select>
           </div>
-
           <div class="input-group">
-            <label for="formatOutput">Format Output:</label>
-            <select id="formatOutput">
-              <option value="xlsx">Excel Document (.xlsx)</option>
-              <option value="csv">CSV Document (.csv)</option>
+            <label>Hapus Baris Pertama (Header):</label>
+            <select id="delHeaderClean">
+              <option value="tidak">TIDAK — Biarkan Header Utuh</option>
+              <option value="ya">YA — Hapus Header</option>
             </select>
           </div>
         </div>
 
-        <div class="section-divider"></div>
-
-        <div class="drop-zone" id="dropZoneCleaner" onclick="document.getElementById('fileInputCleaner').click()">
-          <svg class="drop-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-          <div class="drop-zone-text" id="dropZoneCleanerText"><strong>Klik untuk memilih</strong> atau seret file Excel / CSV ke sini</div>
-          <input type="file" id="fileInputCleaner" accept=".xlsx,.xls,.csv" onchange="processCleaner(this.files)">
+        <div class="dropzone" id="dzClean" onclick="document.getElementById('fClean').click()">
+          <div class="dropzone-text">🎀 Klik atau seret file ke sini</div>
+          <input type="file" id="fClean" multiple accept=".xls,.xlsx">
         </div>
 
-        <div id="statusCleaner" class="status"></div>
-        <div id="downloadAreaCleaner" class="download-area" style="display: none;"></div>
+        <div id="listClean" class="status-box"></div>
+        <div id="statClean" class="status-box"></div>
+        <button class="btn-primary" id="btnClean" disabled onclick="prosesClean()">✨ BERSIHKAN & UNDUH</button>
+      </div>
+
+      <!-- TAB 3: PECAH -->
+      <div id="tabSplit" class="tab-content">
+        <h2 class="card-title">🍰 Pecah File Excel</h2>
+        <p class="card-desc">Pisah file besar menjadi beberapa bagian, header otomatis muncul di setiap bagian.</p>
+
+        <div class="grid-row">
+          <div class="input-group">
+            <label>Baris per File:</label>
+            <input type="number" id="rowSplit" value="250" min="1">
+          </div>
+          <div class="input-group">
+            <label>Format Hasil:</label>
+            <select id="fmtSplit">
+              <option value="xlsx">Excel (.xlsx)</option>
+              <option value="csv">CSV</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group" style="margin-top:12px;">
+          <label>Hapus Baris Pertama Sebelum Dipecah:</label>
+          <select id="delHeaderSplit">
+            <option value="tidak">TIDAK — Tetap jadi header tiap file</option>
+            <option value="ya">YA — Hapus dulu baru dipecah</option>
+          </select>
+        </div>
+
+        <div class="dropzone" id="dzSplit" onclick="document.getElementById('fSplit').click()">
+          <div class="dropzone-text">🎀 Klik atau seret 1 file Excel</div>
+          <input type="file" id="fSplit" accept=".xls,.xlsx">
+        </div>
+
+        <div id="listSplit" class="status-box"></div>
+        <div id="statSplit" class="status-box"></div>
+        <button class="btn-primary" id="btnSplit" disabled onclick="prosesSplit()">✂️ PECAH & UNDUH ZIP</button>
+      </div>
+
+      <!-- TAB 4: GABUNG -->
+      <div id="tabMerge" class="tab-content">
+        <h2 class="card-title">🌷 Gabungkan File Excel</h2>
+        <p class="card-desc">Gabungkan banyak file jadi satu. Pilih cara penanganan baris pertama.</p>
+
+        <div class="grid-row">
+          <div class="input-group">
+            <label>Format Hasil:</label>
+            <select id="fmtMerge">
+              <option value="xlsx">Excel (.xlsx)</option>
+              <option value="csv">CSV</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Baris Pertama:</label>
+            <select id="delHeaderMerge">
+              <option value="simpan">Simpan dari file pertama saja</option>
+              <option value="semua">Hapus dari SEMUA file</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="dropzone" id="dzMerge" onclick="document.getElementById('fMerge').click()">
+          <div class="dropzone-text">🎀 Klik atau seret file secara berurutan</div>
+          <div class="dropzone-sub">Minimal pilih 2 file</div>
+          <input type="file" id="fMerge" multiple accept=".xls,.xlsx">
+        </div>
+
+        <div id="listMerge" class="status-box"></div>
+        <div id="statMerge" class="status-box"></div>
+        <button class="btn-primary" id="btnMerge" disabled onclick="prosesMerge()">🔗 GABUNGKAN & UNDUH</button>
       </div>
 
     </div>
   </div>
 
   <script>
-    // --- TAB SWITCHING LOGIC ---
-    function switchTab(tabId, evt) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.metro-tile-btn').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById(tabId).classList.add('active');
-      evt.currentTarget.classList.add('active');
+    // === GANTI TAB ===
+    function switchTab(id, e) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      e.currentTarget.classList.add('active');
     }
 
-    // --- TOGGLE BATCH / SINGLE ---
-    function toggleCleanerMode() {
-      const mode = document.getElementById('cleanMode').value;
-      const fileInput = document.getElementById('fileInputCleaner');
-      const textLabel = document.getElementById('dropZoneCleanerText');
-
-      if (mode === 'batch') {
-        fileInput.setAttribute('multiple', 'multiple');
-        textLabel.innerHTML = '<strong>Klik untuk memilih</strong> atau seret banyak file sekaligus (Mode Batch)';
-      } else {
-        fileInput.removeAttribute('multiple');
-        textLabel.innerHTML = '<strong>Klik untuk memilih</strong> atau seret 1 file Excel / CSV (Mode Tunggal)';
-      }
-    }
-
-    // --- DRAG & DROP HELPER ---
-    function setupDragAndDrop(zoneId, callback) {
-      const zone = document.getElementById(zoneId);
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => {
-        zone.addEventListener(eName, e => { e.preventDefault(); e.stopPropagation(); }, false);
-      });
-      ['dragenter', 'dragover'].forEach(eName => {
-        zone.addEventListener(eName, () => zone.classList.add('dragover'), false);
-      });
-      ['dragleave', 'drop'].forEach(eName => {
-        zone.addEventListener(eName, () => zone.classList.remove('dragover'), false);
-      });
-      zone.addEventListener('drop', e => callback(e.dataTransfer.files), false);
-    }
-
-    window.onload = function() {
-      setupDragAndDrop('dropZoneConverter', processConverter);
-      setupDragAndDrop('dropZoneSplitter', processSplitter);
-      setupDragAndDrop('dropZoneCleaner', processCleaner);
-    };
-
-    function triggerDownload(blob, fileName) {
+    // === BANTU UNDUH ===
+    function unduh(blob, nama) {
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.href = url; a.download = nama;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 80);
     }
 
-    // ==========================================
-    // LOGIK TAB 1: BATCH CONVERT XLS TO CSV
-    // ==========================================
-    async function processConverter(files) {
-      const statusDiv = document.getElementById('statusConverter');
-      const downloadArea = document.getElementById('downloadAreaConverter');
-      statusDiv.innerHTML = ''; downloadArea.style.display = 'none'; downloadArea.innerHTML = '';
+    // =========================================================
+    // ✅ LANGKAH 1: NORMALISASI NOMOR HP
+    // =========================================================
+    function normalisasiNomorHP(val) {
+      if (!val && val !== 0) return '';
+      // 1. Hapus semua spasi, strip, dan tanda baca (ambil digit saja)
+      let digit = String(val).replace(/[^0-9]/g, '');
+      if (!digit) return '';
 
-      if (!files || files.length === 0) return;
-      const zip = new JSZip();
-      let successCount = 0;
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        try {
-          const arrayBuffer = await file.arrayBuffer();
-          const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-          const csvOutput = XLSX.utils.sheet_to_csv(worksheet);
-          
-          const fileNameNoExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-          zip.file(`${fileNameNoExt}.csv`, csvOutput);
-          successCount++;
-
-          statusDiv.innerHTML += `<div class="status-item">✓ Berhasil: ${file.name} ➔ ${fileNameNoExt}.csv</div>`;
-        } catch (error) {
-          statusDiv.innerHTML += `<div class="status-item status-error">✕ Gagal: ${file.name} (${error.message})</div>`;
-        }
+      // 2. Jika diawali '08' atau '8', ubah otomatis menjadi '628'
+      if (digit.startsWith('08')) {
+        digit = '628' + digit.slice(2);
+      } else if (digit.startsWith('8')) {
+        digit = '628' + digit.slice(1);
       }
-
-      if (successCount > 0) {
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-        downloadArea.style.display = 'block';
-        const btn = document.createElement('button');
-        btn.className = 'btn-download';
-        btn.innerHTML = `UNDUH ZIP (${successCount} FILE CSV)`;
-        btn.onclick = () => triggerDownload(zipBlob, `batch_csv_${Date.now()}.zip`);
-        downloadArea.appendChild(btn);
-      }
+      
+      return digit;
     }
 
-    // ==========================================
-    // LOGIK TAB 2: EXCEL SPLITTER
-    // ==========================================
-    async function processSplitter(files) {
-      const statusDiv = document.getElementById('statusSplitter');
-      const downloadArea = document.getElementById('downloadAreaSplitter');
-      const chunkSize = parseInt(document.getElementById('chunkSizeInput').value) || 250;
-      statusDiv.innerHTML = ''; downloadArea.style.display = 'none'; downloadArea.innerHTML = '';
+    // =========================================================
+    // ✅ LANGKAH 2: VALIDASI NOMOR HP
+    // =========================================================
+    function nomorHPValid(digit) {
+      if (!digit) return false;
+      // Aturan: Harus diawali '628', hanya berisi angka, dan panjang total 10 s/d 14 digit
+      return /^628\d{7,11}$/.test(digit);
+    }
 
-      if (!files || files.length === 0) return;
-      const file = files[0];
-      const zip = new JSZip();
+    // === TAMPILKAN DAFTAR FILE ===
+    function tampilDaftar(pref, files) {
+      const kotak = document.getElementById(`list${pref}`);
+      if (!files || !files.length) { kotak.innerHTML = ''; return; }
+      let html = `<div class="status-item info"><div class="file-list-title">📁 ${files.length} File Dimasukkan:</div>`;
+      for (let f of files) html += `• ${f.name}<br>`;
+      html += `</div>`;
+      kotak.innerHTML = html;
+    }
 
+    // === SETUP UPLOAD & DRAG-DROP ===
+    const fileData = {};
+    ['Conv','Clean','Split','Merge'].forEach(pref => {
+      const dz = document.getElementById(`dz${pref}`);
+      const inp = document.getElementById(`f${pref}`);
+      const btn = document.getElementById(`btn${pref}`);
+
+      dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+      dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+      dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); terima(e.dataTransfer.files); });
+      inp.addEventListener('change', e => terima(e.target.files));
+
+      function terima(files) {
+        const ok = Array.from(files).every(x => /\.(xls|xlsx)$/i.test(x.name));
+        if (!ok) { alert('❌ Hanya file Excel (.xls / .xlsx) yang diperbolehkan'); return; }
+        if (pref === 'Merge' && files.length < 2) { alert('❌ Gabungkan minimal butuh 2 file'); return; }
+        if (pref === 'Split' && files.length > 1) { alert('❌ Pecah file pilih cukup 1 file saja'); return; }
+        fileData[pref] = files;
+        btn.disabled = false;
+        tampilDaftar(pref, files);
+      }
+    });
+
+    // === 1. KONVERSI ===
+    async function prosesConv() {
+      const stat = document.getElementById('statConv');
+      const btn = document.getElementById('btnConv');
+      const delH = document.getElementById('delHeaderConv').value;
+      btn.disabled = true; btn.textContent = '⏳ Memproses...'; stat.innerHTML = '';
       try {
-        const arrayBuffer = await file.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-        if (rows.length <= 1) {
-          statusDiv.innerHTML = '<div class="status-item status-error">File kosong atau hanya berisi baris header.</div>';
-          return;
+        const zip = new JSZip();
+        for (let f of fileData.Conv) {
+          const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
+          let catatan = '';
+          if (delH === 'ya' && d.length > 0) { d.shift(); catatan = ' (baris pertama dihapus)'; }
+          zip.file(f.name.replace(/\.(xls|xlsx)$/i, '.csv'), XLSX.utils.sheet_to_csv(XLSX.utils.aoa_to_sheet(d)));
+          stat.innerHTML += `<div class="status-item success">✅ ${f.name}${catatan}</div>`;
         }
-
-        const header = rows[0];
-        const dataRows = rows.slice(1);
-        const totalFiles = Math.ceil(dataRows.length / chunkSize);
-        const baseFileName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-
-        for (let i = 0; i < totalFiles; i++) {
-          const chunkData = dataRows.slice(i * chunkSize, (i + 1) * chunkSize);
-          const newWorksheet = XLSX.utils.aoa_to_sheet([header, ...chunkData]);
-          const newWorkbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, "Sheet1");
-
-          const excelBuffer = XLSX.write(newWorkbook, { bookType: 'xlsx', type: 'array' });
-          zip.file(`${baseFileName}_part_${i + 1}.xlsx`, excelBuffer);
-        }
-
-        statusDiv.innerHTML = `<div class="status-item status-info">📦 Selesai dipecah menjadi ${totalFiles} bagian file.</div>`;
         const zipBlob = await zip.generateAsync({ type: 'blob' });
-
-        downloadArea.style.display = 'block';
-        const btn = document.createElement('button');
-        btn.className = 'btn-download';
-        btn.innerHTML = `UNDUH ZIP (${totalFiles} FILE XLSX)`;
-        btn.onclick = () => triggerDownload(zipBlob, `${baseFileName}_split.zip`);
-        downloadArea.appendChild(btn);
-
-      } catch (error) {
-        statusDiv.innerHTML = `<div class="status-item status-error">✕ Gagal memproses file: ${error.message}</div>`;
-      }
+        unduh(zipBlob, `hasil-konversi-${Date.now()}.zip`);
+      } catch (e) { stat.innerHTML = `<div class="status-item error">❌ ${e.message}</div>`; }
+      finally { btn.disabled = false; btn.textContent = '⭐ KONVERSI & UNDUH ZIP'; }
     }
 
-    // ==========================================
-    // LOGIK TAB 3: PEMBERSIH NO HP
-    // ==========================================
-    function sanitizePhoneNumber(val) {
-      if (!val) return null;
-      let digits = String(val).replace(/\D/g, '');
+    // =========================================================
+    // ✅ 2. PROSES BERSIHKAN DATA (SESUAI ALUR TERBARU)
+    // =========================================================
+    async function prosesClean() {
+      const stat = document.getElementById('statClean');
+      const btn = document.getElementById('btnClean');
+      const fmt = document.getElementById('fmtClean').value;
+      const delH = document.getElementById('delHeaderClean').value;
 
-      if (digits.length < 9 || digits.length > 15) return null;
+      btn.disabled = true; btn.textContent = '⏳ Memproses...'; stat.innerHTML = '';
+      try {
+        const zip = new JSZip();
+        for (let f of fileData.Clean) {
+          const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
+          if (d.length === 0) { stat.innerHTML += `<div class="status-item error">⚠️ ${f.name}: File kosong</div>`; continue; }
 
-      if (digits.startsWith('08')) {
-        digits = '628' + digits.slice(2);
-      } else if (digits.startsWith('8')) {
-        digits = '628' + digits.slice(1);
-      } else if (!digits.startsWith('628')) {
-        return null;
-      }
-
-      return digits;
-    }
-
-    function cleanRowsHelper(rows) {
-      if (rows.length <= 1) return { cleanedRows: rows, removedCount: 0 };
-
-      const header = rows[0];
-      let hpColIdx = -1;
-
-      for (let c = 0; c < header.length; c++) {
-        const colName = String(header[c] || '').toLowerCase();
-        if (colName.includes('hp') || colName.includes('phone') || colName.includes('wa') || colName.includes('telepon') || colName.includes('kontak') || colName.includes('no')) {
-          hpColIdx = c;
-          break;
-        }
-      }
-      if (hpColIdx === -1) hpColIdx = 0;
-
-      const cleanedRows = [header];
-      let removedCount = 0;
-
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-
-        const isEmpty = !row || row.length === 0 || row.every(c => c === null || c === undefined || String(c).trim() === '');
-        if (isEmpty) {
-          removedCount++;
-          continue;
-        }
-
-        const cleanHp = sanitizePhoneNumber(row[hpColIdx]);
-        if (!cleanHp) {
-          removedCount++;
-          continue;
-        }
-
-        const updatedRow = [...row];
-        updatedRow[hpColIdx] = cleanHp;
-        cleanedRows.push(updatedRow);
-      }
-
-      return { cleanedRows, removedCount };
-    }
-
-    async function processCleaner(files) {
-      const statusDiv = document.getElementById('statusCleaner');
-      const downloadArea = document.getElementById('downloadAreaCleaner');
-      const mode = document.getElementById('cleanMode').value;
-      const format = document.getElementById('formatOutput').value;
-
-      statusDiv.innerHTML = ''; downloadArea.style.display = 'none'; downloadArea.innerHTML = '';
-      if (!files || files.length === 0) return;
-
-      if (mode === 'single') {
-        const file = files[0];
-        try {
-          const arrayBuffer = await file.arrayBuffer();
-          const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
-
-          const { cleanedRows, removedCount } = cleanRowsHelper(rows);
-
-          const baseFileName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-          const outFileName = `${baseFileName}_CLEAN.${format}`;
-          const cleanSheet = XLSX.utils.aoa_to_sheet(cleanedRows);
-          let outputBlob;
-
-          if (format === 'csv') {
-            const csvData = XLSX.utils.sheet_to_csv(cleanSheet);
-            outputBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-          } else {
-            const newWb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(newWb, cleanSheet, "Clean Data");
-            const wbBuffer = XLSX.write(newWb, { bookType: 'xlsx', type: 'array' });
-            outputBlob = new Blob([wbBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          let header = [];
+          if (delH === 'tidak' && d.length > 0) {
+            header = d.shift(); // Ambil header
+          } else if (delH === 'ya' && d.length > 0) {
+            d.shift(); // Hapus header
           }
 
-          statusDiv.innerHTML = `
-            <div class="status-item">
-              ✓ <strong>Pembersihan Selesai (${file.name})</strong><br>
-              • Baris tersisa: <strong>${cleanedRows.length - 1}</strong><br>
-              • Dibuang (Kosong/Invalid HP): <strong>${removedCount}</strong>
-            </div>`;
+          let barisAwal = d.length;
+          let barisValid = [];
 
-          downloadArea.style.display = 'block';
-          const btn = document.createElement('button');
-          btn.className = 'btn-download';
-          btn.innerHTML = `UNDUH FILE BERSIH (.${format.toUpperCase()})`;
-          btn.onclick = () => triggerDownload(outputBlob, outFileName);
-          downloadArea.appendChild(btn);
+          for (let baris of d) {
+            // Kriteria 1: Baris benar-benar kosong
+            const adaIsiSatuPun = baris.some(s => s !== null && s !== undefined && String(s).trim() !== '');
+            if (!adaIsiSatuPun) continue;
 
-        } catch (error) {
-          statusDiv.innerHTML = `<div class="status-item status-error">✕ Gagal memproses file: ${error.message}</div>`;
-        }
-      } else {
-        const zip = new JSZip();
-        let successCount = 0;
+            // Kriteria 2: Kolom A ATAU Kolom B kosong (salah satu tidak ada isinya -> hapus baris)
+            const valA = baris[0] ? String(baris[0]).trim() : '';
+            const valB = baris[1] ? String(baris[1]).trim() : '';
+            if (!valA || !valB) continue;
 
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          try {
-            const arrayBuffer = await file.arrayBuffer();
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
-
-            const { cleanedRows, removedCount } = cleanRowsHelper(rows);
-
-            const baseFileName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-            const cleanSheet = XLSX.utils.aoa_to_sheet(cleanedRows);
-
-            if (format === 'csv') {
-              const csvData = XLSX.utils.sheet_to_csv(cleanSheet);
-              zip.file(`${baseFileName}_CLEAN.csv`, csvData);
-            } else {
-              const newWb = XLSX.utils.book_new();
-              XLSX.utils.book_append_sheet(newWb, cleanSheet, "Clean Data");
-              const wbBuffer = XLSX.write(newWb, { bookType: 'xlsx', type: 'array' });
-              zip.file(`${baseFileName}_CLEAN.xlsx`, wbBuffer);
+            // Deteksi otomatis kolom nomor HP (antara A atau B)
+            let colPhoneIdx = 1; // Default di Kolom B
+            if (!normalisasiNomorHP(valB) && normalisasiNomorHP(valA)) {
+              colPhoneIdx = 0;   // Jika B bukan HP tapi A adalah HP
             }
 
-            successCount++;
-            statusDiv.innerHTML += `<div class="status-item">✓ ${file.name} ➔ Tersisa ${cleanedRows.length - 1} baris valid (Dibuang: ${removedCount})</div>`;
+            // Langkah 1: Normalisasi Nomor HP
+            let normalizedHp = normalisasiNomorHP(baris[colPhoneIdx]);
 
-          } catch (error) {
-            statusDiv.innerHTML += `<div class="status-item status-error">✕ Gagal: ${file.name} (${error.message})</div>`;
+            // Langkah 2: Kriteria 3 (Validasi Nomor HP: 628, 10-14 digit)
+            if (!nomorHPValid(normalizedHp)) continue;
+
+            // Masukkan hasil yang sudah bersih ke dalam baris
+            baris[colPhoneIdx] = normalizedHp;
+
+            // Langkah 3: Simpan baris yang lolos (Otomatis menyusun rapat kembali)
+            barisValid.push(baris);
           }
-        }
 
-        if (successCount > 0) {
-          const zipBlob = await zip.generateAsync({ type: 'blob' });
-          downloadArea.style.display = 'block';
-          const btn = document.createElement('button');
-          btn.className = 'btn-download';
-          btn.innerHTML = `UNDUH ZIP BATCH BERSIH (${successCount} FILE .${format.toUpperCase()})`;
-          btn.onclick = () => triggerDownload(zipBlob, `batch_clean_${format}_${Date.now()}.zip`);
-          downloadArea.appendChild(btn);
+          // Gabungkan kembali dengan header jika disimpan
+          const hasilAkhir = (header.length > 0) ? [header, ...barisValid] : barisValid;
+          const sh = XLSX.utils.aoa_to_sheet(hasilAkhir);
+
+          if (fmt === 'csv') {
+            zip.file(f.name.replace(/\.(xls|xlsx)$/i, '_BERSIH.csv'), XLSX.utils.sheet_to_csv(sh));
+          } else {
+            const nb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(nb, sh, 'Data');
+            zip.file(f.name.replace(/\.(xls|xlsx)$/i, '_BERSIH.xlsx'), 
+                     XLSX.write(nb, { type: 'array', bookType: 'xlsx' }));
+          }
+
+          let barisDihapus = barisAwal - barisValid.length;
+          stat.innerHTML += `<div class="status-item success">✅ ${f.name}: ${barisValid.length} baris valid tersisa (${barisDihapus} baris dihapus)</div>`;
         }
-      }
+        unduh(await zip.generateAsync({ type: 'blob' }), 'hasil-bersih.zip');
+      } catch (e) { stat.innerHTML = `<div class="status-item error">❌ ${e.message}</div>`; }
+      finally { btn.disabled = false; btn.textContent = '✨ BERSIHKAN & UNDUH'; }
+    }
+
+    // === 3. PECAH ===
+    async function prosesSplit() {
+      const stat = document.getElementById('statSplit');
+      const btn = document.getElementById('btnSplit');
+      const brs = +document.getElementById('rowSplit').value || 250;
+      const fmt = document.getElementById('fmtSplit').value;
+      const delH = document.getElementById('delHeaderSplit').value;
+      btn.disabled = true; btn.textContent = '⏳ Memproses...'; stat.innerHTML = '';
+      try {
+        const f = fileData.Split[0];
+        const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+        let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
+        if (delH === 'ya' && d.length > 0) { d.shift(); stat.innerHTML += `<div class="status-item info">ℹ️ Baris pertama dihapus sebelum dipecah</div>`; }
+        if (d.length < 2) throw new Error('Data tidak cukup');
+        const h = d[0], isi = d.slice(1);
+        const zip = new JSZip(); let no = 1;
+        for (let i = 0; i < isi.length; i += brs) {
+          const bg = [h, ...isi.slice(i, i + brs)];
+          const sh = XLSX.utils.aoa_to_sheet(bg);
+          if (fmt === 'csv') zip.file(`${f.name.replace(/\.(xls|xlsx)$/i,'')}_BAGIAN${no}.csv`, XLSX.utils.sheet_to_csv(sh));
+          else { const nb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(nb, sh, 'Bagian'); zip.file(`${f.name.replace(/\.(xls|xlsx)$/i,'')}_BAGIAN${no}.xlsx`, XLSX.write(nb, { type: 'array', bookType: 'xlsx' })); }
+          no++;
+        }
+        unduh(await zip.generateAsync({ type: 'blob' }), 'hasil-pecah.zip');
+        stat.innerHTML += `<div class="status-item success">✅ Selesai dipecah menjadi ${no-1} file</div>`;
+      } catch (e) { stat.innerHTML = `<div class="status-item error">❌ ${e.message}</div>`; }
+      finally { btn.disabled = false; btn.textContent = '✂️ PECAH & UNDUH ZIP'; }
+    }
+
+    // === 4. GABUNG ===
+    async function prosesMerge() {
+      const stat = document.getElementById('statMerge');
+      const btn = document.getElementById('btnMerge');
+      const fmt = document.getElementById('fmtMerge').value;
+      const mode = document.getElementById('delHeaderMerge').value;
+      btn.disabled = true; btn.textContent = '⏳ Menggabungkan...'; stat.innerHTML = '';
+      try {
+        let gabung = [], judul = null;
+        let urutan = 0;
+        for (let f of fileData.Merge) {
+          urutan++;
+          const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
+          if (!d.length) continue;
+          if (mode === 'semua') d.shift();
+          else {
+            if (urutan === 1) { judul = d[0]; d.shift(); gabung.push(judul); }
+            else d.shift();
+          }
+          if (d.length) gabung.push(...d);
+          stat.innerHTML += `<div class="status-item success">✅ ${f.name}</div>`;
+        }
+        if (gabung.length < 2) throw new Error('Tidak ada data yang bisa digabung');
+        const sh = XLSX.utils.aoa_to_sheet(gabung);
+        if (fmt === 'csv') unduh(new Blob([XLSX.utils.sheet_to_csv(sh)], { type: 'text/csv;charset=utf-8' }), 'hasil-gabung.csv');
+        else { const nb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(nb, sh, 'Gabungan'); unduh(new Blob([XLSX.write(nb, { type: 'array', bookType: 'xlsx' })]), 'hasil-gabung.xlsx'); }
+        stat.innerHTML += `<div class="status-item info">✅ Selesai! Total ${gabung.length - 1} baris digabung</div>`;
+      } catch (e) { stat.innerHTML = `<div class="status-item error">❌ ${e.message}</div>`; }
+      finally { btn.disabled = false; btn.textContent = '🔗 GABUNGKAN & UNDUH'; }
     }
   </script>
-
 </body>
 </html>
