@@ -595,20 +595,14 @@
   <script>
     const fileData = {};
 
-    // === TOGGLE OPSI HEADER DYNAMIC ===
     function toggleHeaderAction(pref) {
       const type = document.getElementById(`typeHeader${pref}`).value;
       const boxAction = document.getElementById(`boxAction${pref}`);
       if (boxAction) {
-        if (type === 'tanpa') {
-          boxAction.style.display = 'none';
-        } else {
-          boxAction.style.display = 'block';
-        }
+        boxAction.style.display = (type === 'tanpa') ? 'none' : 'block';
       }
     }
 
-    // === GANTI TAB ===
     function switchTab(id, e) {
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -616,7 +610,6 @@
       e.currentTarget.classList.add('active');
     }
 
-    // === BANTU UNDUH ===
     function unduh(blob, nama) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -625,7 +618,6 @@
       setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 80);
     }
 
-    // === NORMALISASI & VALIDASI NOMOR HP ===
     function normalisasiNomorHP(val) {
       if (!val && val !== 0) return '';
       let digit = String(val).replace(/[^0-9]/g, '');
@@ -644,7 +636,6 @@
       return /^628\d{7,11}$/.test(digit);
     }
 
-    // === URUTKAN FILE DENGAN DROPDOWN ===
     function urutkanData(pref) {
       if (!fileData[pref] || fileData[pref].length <= 1) return;
       const mode = document.getElementById(`sort${pref}`) ? document.getElementById(`sort${pref}`).value : 'asli';
@@ -657,7 +648,6 @@
       tampilDaftar(pref, fileData[pref]);
     }
 
-    // === GESER MANUALLY (UP/DOWN) ===
     function geserFile(pref, index, arah) {
       const arr = fileData[pref];
       const target = index + arah;
@@ -673,7 +663,6 @@
       tampilDaftar(pref, arr);
     }
 
-    // === TAMPILKAN DAFTAR FILE BERSAMA TOMBOL GESER MANUALLY ===
     function tampilDaftar(pref, files) {
       const kotak = document.getElementById(`list${pref}`);
       if (!files || !files.length) { kotak.innerHTML = ''; return; }
@@ -698,7 +687,6 @@
       kotak.innerHTML = html;
     }
 
-    // === SETUP UPLOAD & DRAG-DROP ===
     ['Conv','Clean','Split','Merge'].forEach(pref => {
       const dz = document.getElementById(`dz${pref}`);
       const inp = document.getElementById(`f${pref}`);
@@ -739,7 +727,7 @@
         const zip = new JSZip();
         for (let f of fileData.Conv) {
           const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
-          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
+          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1, defval: '' });
           let catatan = '';
 
           if (typeHeader === 'ada' && actionHeader === 'hapus' && d.length > 0) {
@@ -768,7 +756,7 @@
         const zip = new JSZip();
         for (let f of fileData.Clean) {
           const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
-          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
+          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1, defval: '' });
           if (d.length === 0) { stat.innerHTML += `<div class="status-item error">⚠️ ${f.name}: File kosong</div>`; continue; }
 
           let header = [];
@@ -836,7 +824,7 @@
       try {
         const f = fileData.Split[0];
         const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
-        let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
+        let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1, defval: '' });
         
         let h = null;
         let isi = d;
@@ -869,7 +857,7 @@
       finally { btn.disabled = false; btn.textContent = '✂️ PECAH & UNDUH ZIP'; }
     }
 
-    // === 4. GABUNG ===
+    // === 4. GABUNG (DIPERBAIKI) ===
     async function prosesMerge() {
       const stat = document.getElementById('statMerge');
       const btn = document.getElementById('btnMerge');
@@ -879,38 +867,71 @@
 
       btn.disabled = true; btn.textContent = '⏳ Menggabungkan...'; stat.innerHTML = '';
       try {
-        let gabung = [], judul = null;
-        let urutan = 0;
+        let gabung = [];
+        let headerPertama = null;
+        let fileIndex = 0;
 
         for (let f of fileData.Merge) {
-          urutan++;
+          fileIndex++;
           const b = XLSX.read(await f.arrayBuffer(), { type: 'array' });
-          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1 });
-          if (!d.length) continue;
+          
+          // Membaca baris dengan defval agar sel kosong tetap terhitung konsisten
+          let d = XLSX.utils.sheet_to_json(b.Sheets[b.SheetNames[0]], { header: 1, defval: '' });
+          
+          // Abaikan baris yang benar-benar kosong di akhir sheet
+          d = d.filter(baris => baris.some(c => String(c).trim() !== ''));
+
+          if (!d.length) {
+            stat.innerHTML += `<div class="status-item info">⚠️ ${f.name} kosong, dilewati.</div>`;
+            continue;
+          }
 
           if (typeHeader === 'ada') {
             if (actionHeader === 'hapus') {
-              d.shift();
+              d.shift(); // Hapus header dari setiap file
             } else {
-              if (urutan === 1) {
-                judul = d[0]; d.shift(); gabung.push(judul);
+              if (fileIndex === 1) {
+                headerPertama = d.shift(); // Simpan header dari file pertama
               } else {
-                d.shift();
+                d.shift(); // Buang header dari file kedua dan seterusnya
               }
             }
           }
 
           if (d.length) gabung.push(...d);
-          stat.innerHTML += `<div class="status-item success">✅ ${f.name}</div>`;
+          stat.innerHTML += `<div class="status-item success">✅ ${f.name} (${d.length} baris data)</div>`;
         }
 
         if (gabung.length < 1) throw new Error('Tidak ada data yang bisa digabung');
-        const sh = XLSX.utils.aoa_to_sheet(gabung);
-        if (fmt === 'csv') unduh(new Blob([XLSX.utils.sheet_to_csv(sh)], { type: 'text/csv;charset=utf-8' }), 'hasil-gabung.csv');
-        else { const nb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(nb, sh, 'Gabungan'); unduh(new Blob([XLSX.write(nb, { type: 'array', bookType: 'xlsx' })]), 'hasil-gabung.xlsx'); }
-        stat.innerHTML += `<div class="status-item info">✅ Selesai! Total ${gabung.length} baris digabung</div>`;
-      } catch (e) { stat.innerHTML = `<div class="status-item error">❌ ${e.message}</div>`; }
-      finally { btn.disabled = false; btn.textContent = '🔗 GABUNGKAN & UNDUH'; }
+
+        // Susun data akhir
+        const hasilAkhir = (headerPertama) ? [headerPertama, ...gabung] : gabung;
+        
+        // Buat sheet baru
+        const sh = XLSX.utils.aoa_to_sheet(hasilAkhir);
+
+        // Rekalkulasi rentang (range) sheet agar seluruh baris terbaca utuh oleh MS Excel
+        const maxCols = Math.max(...hasilAkhir.map(r => r.length));
+        sh['!ref'] = XLSX.utils.encode_range({
+          s: { c: 0, r: 0 },
+          e: { c: maxCols > 0 ? maxCols - 1 : 0, r: hasilAkhir.length - 1 }
+        });
+
+        if (fmt === 'csv') {
+          unduh(new Blob([XLSX.utils.sheet_to_csv(sh)], { type: 'text/csv;charset=utf-8' }), 'hasil-gabung.csv');
+        } else {
+          const nb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(nb, sh, 'Gabungan');
+          unduh(new Blob([XLSX.write(nb, { type: 'array', bookType: 'xlsx' })]), 'hasil-gabung.xlsx');
+        }
+        
+        stat.innerHTML += `<div class="status-item info">🎉 Selesai! Total ${hasilAkhir.length} baris (termasuk header) berhasil digabungkan tanpa terpotong.</div>`;
+      } catch (e) { 
+        stat.innerHTML = `<div class="status-item error">❌ ${e.message}</div>`; 
+      } finally { 
+        btn.disabled = false; 
+        btn.textContent = '🔗 GABUNGKAN & UNDUH'; 
+      }
     }
   </script>
 </body>
