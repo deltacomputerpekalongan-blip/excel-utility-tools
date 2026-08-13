@@ -295,7 +295,7 @@
     .status-box {
       margin-top: 16px;
       font-size: 13px;
-      max-height: 220px;
+      max-height: 260px;
       overflow-y: auto;
     }
 
@@ -313,10 +313,51 @@
     .status-item.error { border-color: #FFC9C9; background: #FFF5F5; color: #C92A2A; }
     .status-item.info { border-color: #A5D8FF; background: #E7F5FF; color: #1864AB; }
 
+    .file-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
     .file-list-title {
       font-weight: 700;
-      margin-bottom: 6px;
       font-size: 13px;
+    }
+
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FFFFFF;
+      padding: 6px 12px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .file-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 75%;
+    }
+
+    .btn-sort {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+
+    .btn-sort:hover {
+      background: var(--accent-pink);
+      color: #FFF;
     }
 
     @media (max-width: 768px) {
@@ -379,6 +420,15 @@
           </div>
         </div>
 
+        <div class="input-group">
+          <label>Urutan File:</label>
+          <select id="sortConv" onchange="urutkanData('Conv')">
+            <option value="asli">Sesuai Urutan Pilih (Default)</option>
+            <option value="asc">Otomatis Abjad (A - Z)</option>
+            <option value="desc">Otomatis Abjad Terbalik (Z - A)</option>
+          </select>
+        </div>
+
         <div class="dropzone" id="dzConv" onclick="document.getElementById('fConv').click()">
           <div class="dropzone-text">🎀 Klik atau seret file ke sini</div>
           <div class="dropzone-sub">Pilih banyak file .xls / .xlsx sekaligus</div>
@@ -412,12 +462,22 @@
           </div>
         </div>
 
-        <div class="input-group" id="boxActionClean">
-          <label>Opsi Header:</label>
-          <select id="actionHeaderClean">
-            <option value="simpan">Simpan Header Utuh</option>
-            <option value="hapus">Hapus Header</option>
-          </select>
+        <div class="grid-row">
+          <div class="input-group" id="boxActionClean">
+            <label>Opsi Header:</label>
+            <select id="actionHeaderClean">
+              <option value="simpan">Simpan Header Utuh</option>
+              <option value="hapus">Hapus Header</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Urutan File:</label>
+            <select id="sortClean" onchange="urutkanData('Clean')">
+              <option value="asli">Sesuai Urutan Pilih (Default)</option>
+              <option value="asc">Otomatis Abjad (A - Z)</option>
+              <option value="desc">Otomatis Abjad Terbalik (Z - A)</option>
+            </select>
+          </div>
         </div>
 
         <div class="dropzone" id="dzClean" onclick="document.getElementById('fClean').click()">
@@ -498,12 +558,22 @@
           </div>
         </div>
 
-        <div class="input-group" id="boxActionMerge">
-          <label>Opsi Header:</label>
-          <select id="actionHeaderMerge">
-            <option value="simpan">Simpan Header (Hanya Dari File Pertama)</option>
-            <option value="hapus">Hapus Header Dari Semua File</option>
-          </select>
+        <div class="grid-row">
+          <div class="input-group" id="boxActionMerge">
+            <label>Opsi Header:</label>
+            <select id="actionHeaderMerge">
+              <option value="simpan">Simpan Header (Hanya Dari File Pertama)</option>
+              <option value="hapus">Hapus Header Dari Semua File</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Urutan File Gabungan:</label>
+            <select id="sortMerge" onchange="urutkanData('Merge')">
+              <option value="asli">Sesuai Urutan Pilih (Default)</option>
+              <option value="asc">Otomatis Abjad (A - Z)</option>
+              <option value="desc">Otomatis Abjad Terbalik (Z - A)</option>
+            </select>
+          </div>
         </div>
 
         <div class="divider"></div>
@@ -523,14 +593,18 @@
   </div>
 
   <script>
+    const fileData = {};
+
     // === TOGGLE OPSI HEADER DYNAMIC ===
     function toggleHeaderAction(pref) {
       const type = document.getElementById(`typeHeader${pref}`).value;
       const boxAction = document.getElementById(`boxAction${pref}`);
-      if (type === 'tanpa') {
-        boxAction.style.display = 'none';
-      } else {
-        boxAction.style.display = 'block';
+      if (boxAction) {
+        if (type === 'tanpa') {
+          boxAction.style.display = 'none';
+        } else {
+          boxAction.style.display = 'block';
+        }
       }
     }
 
@@ -551,9 +625,7 @@
       setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 80);
     }
 
-    // =========================================================
-    // ✅ NORMALISASI & VALIDASI NOMOR HP
-    // =========================================================
+    // === NORMALISASI & VALIDASI NOMOR HP ===
     function normalisasiNomorHP(val) {
       if (!val && val !== 0) return '';
       let digit = String(val).replace(/[^0-9]/g, '');
@@ -572,18 +644,61 @@
       return /^628\d{7,11}$/.test(digit);
     }
 
-    // === TAMPILKAN DAFTAR FILE ===
+    // === URUTKAN FILE DENGAN DROPDOWN ===
+    function urutkanData(pref) {
+      if (!fileData[pref] || fileData[pref].length <= 1) return;
+      const mode = document.getElementById(`sort${pref}`) ? document.getElementById(`sort${pref}`).value : 'asli';
+
+      if (mode === 'asc') {
+        fileData[pref].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+      } else if (mode === 'desc') {
+        fileData[pref].sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true, sensitivity: 'base' }));
+      }
+      tampilDaftar(pref, fileData[pref]);
+    }
+
+    // === GESER MANUALLY (UP/DOWN) ===
+    function geserFile(pref, index, arah) {
+      const arr = fileData[pref];
+      const target = index + arah;
+      if (target < 0 || target >= arr.length) return;
+      
+      const temp = arr[index];
+      arr[index] = arr[target];
+      arr[target] = temp;
+
+      if (document.getElementById(`sort${pref}`)) {
+        document.getElementById(`sort${pref}`).value = 'asli';
+      }
+      tampilDaftar(pref, arr);
+    }
+
+    // === TAMPILKAN DAFTAR FILE BERSAMA TOMBOL GESER MANUALLY ===
     function tampilDaftar(pref, files) {
       const kotak = document.getElementById(`list${pref}`);
       if (!files || !files.length) { kotak.innerHTML = ''; return; }
-      let html = `<div class="status-item info"><div class="file-list-title">📁 ${files.length} File Dimasukkan:</div>`;
-      for (let f of files) html += `• ${f.name}<br>`;
+      
+      let html = `<div class="status-item info">
+        <div class="file-list-header">
+          <span class="file-list-title">📁 ${files.length} File Siap Diproses:</span>
+        </div>`;
+      
+      files.forEach((f, idx) => {
+        html += `
+          <div class="file-item">
+            <span class="file-item-name" title="${f.name}">${idx + 1}. ${f.name}</span>
+            <div>
+              ${idx > 0 ? `<button class="btn-sort" onclick="geserFile('${pref}', ${idx}, -1)">⬆️</button>` : ''}
+              ${idx < files.length - 1 ? `<button class="btn-sort" onclick="geserFile('${pref}', ${idx}, 1)">⬇️</button>` : ''}
+            </div>
+          </div>`;
+      });
+
       html += `</div>`;
       kotak.innerHTML = html;
     }
 
     // === SETUP UPLOAD & DRAG-DROP ===
-    const fileData = {};
     ['Conv','Clean','Split','Merge'].forEach(pref => {
       const dz = document.getElementById(`dz${pref}`);
       const inp = document.getElementById(`f${pref}`);
@@ -595,13 +710,20 @@
       inp.addEventListener('change', e => terima(e.target.files));
 
       function terima(files) {
-        const ok = Array.from(files).every(x => /\.(xls|xlsx)$/i.test(x.name));
+        const arr = Array.from(files);
+        const ok = arr.every(x => /\.(xls|xlsx)$/i.test(x.name));
         if (!ok) { alert('❌ Hanya file Excel (.xls / .xlsx) yang diperbolehkan'); return; }
-        if (pref === 'Merge' && files.length < 2) { alert('❌ Gabungkan minimal butuh 2 file'); return; }
-        if (pref === 'Split' && files.length > 1) { alert('❌ Pecah file pilih cukup 1 file saja'); return; }
-        fileData[pref] = files;
+        if (pref === 'Merge' && arr.length < 2) { alert('❌ Gabungkan minimal butuh 2 file'); return; }
+        if (pref === 'Split' && arr.length > 1) { alert('❌ Pecah file pilih cukup 1 file saja'); return; }
+        
+        fileData[pref] = arr;
         btn.disabled = false;
-        tampilDaftar(pref, files);
+        
+        if (document.getElementById(`sort${pref}`)) {
+          document.getElementById(`sort${pref}`).value = 'asli';
+        }
+        
+        tampilDaftar(pref, fileData[pref]);
       }
     });
 
@@ -652,9 +774,9 @@
           let header = [];
           if (typeHeader === 'ada') {
             if (actionHeader === 'simpan') {
-              header = d.shift(); // Ambil header untuk disimpan nanti
+              header = d.shift();
             } else {
-              d.shift(); // Buang header
+              d.shift();
             }
           }
 
@@ -724,7 +846,7 @@
             h = d[0];
             isi = d.slice(1);
           } else {
-            isi = d.slice(1); // Hapus header
+            isi = d.slice(1);
             stat.innerHTML += `<div class="status-item info">ℹ️ Header dihapus sebelum dipecah</div>`;
           }
         }
@@ -768,9 +890,8 @@
 
           if (typeHeader === 'ada') {
             if (actionHeader === 'hapus') {
-              d.shift(); // Buang header dari semua file
+              d.shift();
             } else {
-              // Simpan dari file pertama saja
               if (urutan === 1) {
                 judul = d[0]; d.shift(); gabung.push(judul);
               } else {
